@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rutas en laberintos · BFS vs DFS</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0f1a'/%3E%3Cpath d='M7 7h6v6H7zm12 0h6v6h-6zM7 19h6v6H7zm12 0h6v6h-6z' fill='%2338bdf8'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">◈</span>
+    <div>
+      <h1>Rutas en laberintos</h1>
+      <p>Comparación de búsqueda en anchura (BFS) y en profundidad (DFS)</p>
+    </div>
+  </div>
+  <div class="topbar-status" id="status">Listo</div>
+</header>
+
+<main class="layout">
+
+  <!-- ============================ Panel de control ============================ -->
+  <aside class="panel">
+
+    <section class="card">
+      <h2>1 · Laberinto</h2>
+      <div class="grid-2">
+        <label>Filas
+          <input type="number" id="rows" value="21" min="5" max="151" step="2">
+        </label>
+        <label>Columnas
+          <input type="number" id="cols" value="21" min="5" max="151" step="2">
+        </label>
+      </div>
+      <div class="grid-2">
+        <div class="campo">
+          <label for="seed">Semilla</label>
+          <div class="input-group">
+            <input type="number" id="seed" value="7" min="0" max="999999" step="1">
+            <button type="button" class="btn-dado" id="btnSeed"
+                    title="Semilla aleatoria y laberinto nuevo (tecla N)"
+                    aria-label="Generar semilla aleatoria">⟳</button>
+          </div>
+        </div>
+        <label>Atajos
+          <input type="range" id="braid" min="0" max="100" value="0" step="5">
+          <span class="hint" id="braidLabel">0 %</span>
+        </label>
+      </div>
+      <button class="btn btn-primary" id="btnGenerate">Generar laberinto</button>
+      <p class="hint">La misma semilla siempre produce el mismo laberinto.<br>
+         El botón <b>⟳</b> elige una semilla al azar y genera de inmediato.</p>
+    </section>
+
+    <section class="card">
+      <h2>2 · Entrada manual</h2>
+      <p class="hint">Haz clic o arrastra sobre el lienzo para dibujar muros.
+         Con <kbd>Shift</kbd> arrastrando se borran.</p>
+      <div class="row">
+        <button class="btn" id="btnClearWalls">Borrar muros</button>
+        <button class="btn" id="btnResetEnds">Reiniciar S/G</button>
+      </div>
+      <div class="row">
+        <label class="btn btn-file">
+          Cargar .txt
+          <input type="file" id="fileInput" accept=".txt,text/plain" hidden>
+        </label>
+        <button class="btn" id="btnDownload">Guardar .txt</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3 · Algoritmo</h2>
+      <div class="segmented" role="radiogroup" aria-label="Algoritmo">
+        <button class="seg is-active" data-algo="bfs" role="radio" aria-checked="true">
+          BFS <small>cola FIFO</small>
+        </button>
+        <button class="seg" data-algo="dfs" role="radio" aria-checked="false">
+          DFS <small>pila LIFO</small>
+        </button>
+      </div>
+
+      <label class="speed">Velocidad de la animación
+        <input type="range" id="speed" min="1" max="40" value="8" step="1">
+      </label>
+
+      <button class="btn btn-accent" id="btnSolve">Resolver ruta</button>
+      <button class="btn" id="btnCompare">Comparar BFS vs DFS</button>
+    </section>
+
+    <section class="card">
+      <h2>Resultados</h2>
+      <div class="table-wrap">
+        <table class="metrics" id="metrics">
+          <thead>
+            <tr><th>Métrica</th><th>Valor</th></tr>
+          </thead>
+          <tbody id="metricsBody">
+            <tr><td colspan="2" class="empty">Sin ejecuciones todavía.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-ghost" id="btnPng">Guardar captura PNG</button>
+    </section>
+
+  </aside>
+
+  <!-- ================================ Lienzo ================================ -->
+  <section class="stage">
+    <div class="boards" id="boards">
+      <figure class="board-wrap" id="wrap1">
+        <figcaption id="cap1">BFS · búsqueda en anchura</figcaption>
+        <canvas id="board1" aria-label="Laberinto"></canvas>
+      </figure>
+      <figure class="board-wrap is-hidden" id="wrap2">
+        <figcaption id="cap2">DFS · búsqueda en profundidad</figcaption>
+        <canvas id="board2" aria-label="Laberinto"></canvas>
+      </figure>
+    </div>
+
+    <div class="legend">
+      <span><i class="sw sw-start"></i>Inicio</span>
+      <span><i class="sw sw-goal"></i>Meta</span>
+      <span><i class="sw sw-wall"></i>Muro</span>
+      <span><i class="sw sw-visit"></i>Explorado</span>
+      <span><i class="sw sw-path"></i>Camino</span>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
