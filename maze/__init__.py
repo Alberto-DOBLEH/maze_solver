@@ -2,5 +2,16 @@
 
 from .generator import generate
 from .grid import Maze, MazeError
+from .solver import ALGORITMOS, SolverError, bfs, comparar, dfs, solve
 
-__all__ = ["Maze", "MazeError", "generate"]
+__all__ = [
+    "ALGORITMOS",
+    "Maze",
+    "MazeError",
+    "SolverError",
+    "bfs",
+    "comparar",
+    "dfs",
+    "generate",
+    "solve",
+]
